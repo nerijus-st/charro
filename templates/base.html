@@ -1,0 +1,51 @@
+{{ define "base"}}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- Font Awesome -->
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+    <!-- Custom css -->
+    <link rel="stylesheet" type="text/css" href="../static/style/main.css">
+
+    <title>Charro</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-sm" style="max-width: 400px;">
+                <div class="text-center">
+                    <a href="./">
+                        <img src="../static/img/charro_gopher.png"
+                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
+                            alt="" style="width: 70px;">
+                    </a>
+                    <h2 id="effect5">Charro</h2>
+
+                    {{template "content" .}}
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <footer class="page-footer font-small fixed-bottom text-center">
+        <a href="https://github.com/nerijus-st" target="_blank"><i class="fa fa-github fa-lg"
+                aria-hidden="true"></i></a>
+    </footer>
+</body>
+
+</html>
+{{end}}

@@ -1,0 +1,55 @@
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger" role="alert">
+    {{.Error}}
+</div>
+{{else if .User}}
+<p>Howdy, {{.User.DisplayName}}.</p>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success" role="alert">Playlist successfully generated!</div>
+{{end}}
+</div>
+<form method="POST">
+    <div class="form-group">
+        <input type="text" class="form-control" name="lastfm-username" id="" placeholder="last.fm username"
+            maxlength="15" required>
+    </div>
+
+    <div class="form-group">
+        <label for="limit-select">Song limit</label>
+        <select class="form-control" name="limit" id="limit-select">
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="">Period</label>
+        <select class="form-control" name="period" id="period-select">
+            <option value="7day">7day</option>
+            <option value="1month" selected>1month</option>
+            <option value="3month">3month</option>
+            <option value="6month">6month</option>
+            <option value="12month">12month</option>
+            <option value="overall">overall</option>
+        </select>
+    </div>
+
+    <div class="text-center">
+        <button id="button" name="button" class="btn btn-success btn-lg" data-style="expand-left"><i class="fa fa-spotify"
+                aria-hidden="true"></i> Generate</button>
+    </div>
+
+</form>
+{{if .PlaylistID}}
+<div class="embed-responsive embed-responsive-4by3">
+    <iframe class="embed-responsive-item" src="https://open.spotify.com/embed/playlist/{{.PlaylistID}}"></iframe>
+</div>
+{{end}}
+{{end}}

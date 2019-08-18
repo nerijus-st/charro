@@ -1,0 +1,47 @@
+{{define "content"}}
+
+{{if .Error}}
+<div class="alert alert-danger" role="alert">
+    {{.Error}}
+</div>
+{{else if .User}}
+<p>Howdy, {{.User.DisplayName}}.</p>
+{{end}}
+{{if .Success}}
+<div class="alert alert-success" role="alert">Playlist successfully generated!</div>
+{{end}}
+</div>
+<form method="POST">
+
+    <div class="form-group">
+        <label for="limit-select">Song limit</label>
+        <select class="form-control" name="limit" id="limit-select">
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="">Time range</label>
+        <select class="form-control" name="time_range" id="period-select">
+            <option value="short">Short term (last 4 weeks)</option>
+            <option value="medium" selected>Medium term (last 6 months)</option>
+            <option value="long">Long term (several years)</option>
+        </select>
+    </div>
+
+    <div class="text-center">
+        <button id="button" name="button" class="btn btn-success btn-lg" data-style="expand-left"><i
+                class="fa fa-spotify" aria-hidden="true"></i> Generate</button>
+    </div>
+
+</form>
+{{if .PlaylistID}}
+<div class="embed-responsive embed-responsive-4by3">
+    <iframe class="embed-responsive-item" src="https://open.spotify.com/embed/playlist/{{.PlaylistID}}"></iframe>
+</div>
+{{end}}
+{{end}}
