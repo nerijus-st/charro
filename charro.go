@@ -14,7 +14,7 @@ import (
 	spotifyWrapper "github.com/zmb3/spotify"
 )
 
-const redirectURI = "http://localhost:8080/auth"
+const redirectURI = "charro.herokuapp.com/auth"
 
 var (
 	auth = spotifyWrapper.NewAuthenticator(redirectURI,
