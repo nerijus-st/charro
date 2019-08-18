@@ -35,4 +35,3 @@
 
 [metadata.heroku]
   root-package = "github.com/nerijus-st/charro"
-  go-version = "1.12.9"
