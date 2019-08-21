@@ -33,7 +33,7 @@ type Error struct {
 }
 
 //GetTopTracks makes a call to last.fm
-func GetTopTracks(username *string, period *string, limit *string) (*Tracks, error) {
+func GetTopTracks(username, period, limit *string) (*Tracks, error) {
 
 	apiKey := os.Getenv("LASTFM_API_KEY")
 	url := "http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=" + *username + "&api_key=" + apiKey + "&format=json&limit=" + *limit + "&period=" + *period

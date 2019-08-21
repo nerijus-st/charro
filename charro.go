@@ -1,14 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"text/template"
-	"time"
 
+	_ "github.com/lib/pq"
 	"github.com/nerijus-st/charro/lastfm"
 	"github.com/nerijus-st/charro/spotify"
 	spotifyWrapper "github.com/zmb3/spotify"
@@ -56,7 +57,7 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	logToFile("user", user.User.DisplayName, "")
+	logToDB("users", user.User.DisplayName, "")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 
@@ -134,7 +135,7 @@ func lastFMHandle(w http.ResponseWriter, r *http.Request) {
 
 func logError(w *http.ResponseWriter, err error, userDisplayName string, tmpl *template.Template) {
 	fmt.Println(err)
-	logToFile("error", userDisplayName, err.Error())
+	logToDB("errors", userDisplayName, err.Error())
 	data := Data{Error: err.Error()}
 	tmpl.ExecuteTemplate(*w, "base", data)
 }
@@ -202,29 +203,66 @@ func loginHandle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func logToFile(logType string, user string, errorDesc string) {
-	fileName := "errors.log"
+func logToDB(logType, user, errorDesc string) {
+	database, err := connect()
 
-	if logType == "user" {
-		fileName = "users.log"
-	}
-
-	f, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Println(err)
+		fmt.Printf("[x] Warning: could not connect to database. Logging is off. %s\n", err.Error())
+		return
 	}
-	defer f.Close()
 
-	if _, err := f.WriteString(fmt.Sprintf("%s, %s, %s\n", user, errorDesc, time.Now().Format("2006.01.02 15:04:05"))); err != nil {
-		log.Println(err)
+	if logType == "users" {
+		_, err = database.Query(fmt.Sprintf("INSERT INTO %s (username) VALUES ('%s');", logType, user))
+		if err != nil {
+			fmt.Printf(fmt.Sprintf("INSERT INTO %s (username) VALUES ('%s');", logType, user))
+			fmt.Printf("[x] Error on insert. Reason: %s\n", err.Error())
+		}
+	} else {
+		_, err = database.Query(fmt.Sprintf("INSERT INTO %s (username, error_desc) VALUES ('%s', '%s');", logType, user, errorDesc))
+		if err != nil {
+			fmt.Printf(fmt.Sprintf("INSERT INTO %s (username, error_desc) VALUES ('%s', '%s');", logType, user, errorDesc))
+			fmt.Printf("[x] Error on insert. Reason: %s\n", err.Error())
+		}
 	}
+
+	defer database.Close()
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "favicon.ico")
 }
 
+func connect() (*sql.DB, error) {
+	dbURL := os.Getenv("DATABASE_URL")
+	database, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		return nil, err
+	}
+	return database, nil
+}
+
+func createTables() {
+	database, err := connect()
+	if err != nil {
+		fmt.Printf("[x] Warning: could not connect to database. Logging is off. %s\n", err.Error())
+	} else {
+		_, err = database.Query("CREATE TABLE IF NOT EXISTS USERS (id SERIAL, username varchar(255), logged_at TIMESTAMPTZ NOT NULL DEFAULT NOW());")
+		if err != nil {
+			fmt.Printf("[x] Error on creating users table. Reason: %s\n", err.Error())
+		}
+		_, err = database.Query("CREATE TABLE IF NOT EXISTS ERRORS (id SERIAL, username varchar(255),error_desc varchar(255), errored_at TIMESTAMPTZ NOT NULL DEFAULT NOW());")
+		if err != nil {
+			fmt.Printf("[x] Error on creating users table. Reason: %s\n", err.Error())
+		}
+
+		defer database.Close()
+	}
+}
+
 func main() {
+
+	createTables()
+
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 
 	http.HandleFunc("/", mainHandle)
