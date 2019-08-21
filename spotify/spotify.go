@@ -73,7 +73,7 @@ func GetTracksBasedOnLastFM(client *spotifyWrapper.Client, tracks *lastfm.Tracks
 }
 
 //GeneratePlaylist creates playlist for a user
-func GeneratePlaylist(client *spotifyWrapper.Client, trackIDs *TrackIDs, period *string, limit *string) (*spotifyWrapper.FullPlaylist, error) {
+func GeneratePlaylist(client *spotifyWrapper.Client, trackIDs *TrackIDs, period, limit *string) (*spotifyWrapper.FullPlaylist, error) {
 
 	user, err := client.CurrentUser()
 	if err != nil {

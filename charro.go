@@ -15,19 +15,18 @@ import (
 	spotifyWrapper "github.com/zmb3/spotify"
 )
 
-var redirectURI = os.Getenv("OAUTH2_REDIRECT_URI")
-
 var (
 	auth = spotifyWrapper.NewAuthenticator(redirectURI,
 		spotifyWrapper.ScopeUserReadPrivate,
 		spotifyWrapper.ScopePlaylistModifyPrivate,
 		spotifyWrapper.ScopeUserTopRead,
 	)
-	ch    = make(chan *spotifyWrapper.Client)
-	state = "zxvcasdfqw"
+	ch          = make(chan *spotifyWrapper.Client)
+	state       = "zxvcasdfqw"
+	client      *spotifyWrapper.Client
+	redirectURI = os.Getenv("OAUTH2_REDIRECT_URI")
+	pingChan    = make(chan string)
 )
-
-var client *spotifyWrapper.Client
 
 //Data to pass to templates
 type Data struct {
