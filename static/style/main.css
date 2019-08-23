@@ -13,6 +13,16 @@ h2 {
 	color: #353535;
   letter-spacing:10px;
   text-shadow: 4px 4px 0px mintcream, 6px 6px 0px rgba(54, 54, 54, 0.5);
+  border-bottom: 1px solid lightblue;
+}
+
+#charro-p{
+  margin: auto;
+	font-size:1em;
+	font-weight:bold;
+	font-family: 'Josefin Sans', sans-serif;
+	color: #353535;
+  text-shadow: 1px 1px 0px mintcream, 2px 2px 0px rgba(54, 54, 54, 0.5);
 }
 
 footer {
