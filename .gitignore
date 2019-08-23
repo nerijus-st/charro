@@ -15,3 +15,6 @@
 
 # mac stuff
 .DS_Store
+
+# ignore compiled charro
+charro
