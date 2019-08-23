@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/nerijus-st/charro)](https://goreportcard.com/report/github.com/nerijus-st/charro)
 # Charro
 <p align="center">
   <img src="https://nerijust-st.s3.us-east-2.amazonaws.com/charro_gopher.png" width="150" alt="Charro">
