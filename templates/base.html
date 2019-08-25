@@ -7,7 +7,10 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146428702-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
         gtag('js', new Date());
 
         gtag('config', 'UA-146428702-1');
@@ -40,7 +43,7 @@
                         <img src="../static/img/charro_gopher.png"
                             class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
                             alt="" style="width: 70px;">
-                    <h2 id="effect5">Charro</h2>
+                        <h2 id="effect5">Charro</h2>
                     </a>
                     {{template "content" .}}
 
@@ -48,7 +51,7 @@
             </div>
         </div>
     </div>
-    </div>
+
 
     <footer class="page-footer font-small fixed-bottom text-center">
         <a href="https://github.com/nerijus-st/charro" target="_blank"><i class="fa fa-github fa-lg"

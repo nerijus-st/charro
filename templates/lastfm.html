@@ -7,10 +7,11 @@
 {{else if .User}}
 <p>Howdy, {{.User.DisplayName}}.</p>
 {{end}}
-{{if .Success}}
-<div class="alert alert-success" role="alert">Check out your playlist!</div>
+{{if .TopTrackAdded}}
+<div class="alert alert-info" role="alert">Your top track was added to <a href="https://open.spotify.com/playlist/3XN89Ie0dEP5cInfxN5S5j?si=oPk0CrrmTvSw26mbS6SYGw"><span id="charro-p">Charro</span> public playlist!</a></div>
 {{end}}
 </div>
+
 <form method="POST">
     <div class="form-group">
         <input type="text" class="form-control" name="lastfm-username" id="" placeholder="last.fm username"
@@ -42,13 +43,19 @@
     </div>
 
     <div class="text-center">
-        <button id="button" name="button" class="btn btn-success btn-lg" data-style="expand-left"><i class="fa fa-spotify"
-                aria-hidden="true"></i> Generate</button>
+        <button id="button" name="button" class="btn btn-success btn-lg" data-style="expand-left"><i
+                class="fa fa-spotify" aria-hidden="true"></i> Generate</button>
     </div>
 
 </form>
+
+{{if .Success}}
+</br>
+    <div class="alert alert-success" role="alert">Check out your new playlist!</div>
+{{end}}
+
 {{if .PlaylistID}}
-<div class="embed-responsive embed-responsive-4by3">
+<div class="embed-responsive embed-responsive-16by9" id="new-playlist">
     <iframe class="embed-responsive-item" src="https://open.spotify.com/embed/playlist/{{.PlaylistID}}"></iframe>
 </div>
 {{end}}

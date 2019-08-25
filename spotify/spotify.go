@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/nerijus-st/charro/lastfm"
-
 	spotifyWrapper "github.com/zmb3/spotify"
 )
 

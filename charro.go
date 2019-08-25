@@ -19,13 +19,13 @@ var (
 	auth = spotifyWrapper.NewAuthenticator(redirectURI,
 		spotifyWrapper.ScopeUserReadPrivate,
 		spotifyWrapper.ScopePlaylistModifyPrivate,
+		spotifyWrapper.ScopePlaylistModifyPublic,
 		spotifyWrapper.ScopeUserTopRead,
 	)
 	ch          = make(chan *spotifyWrapper.Client)
 	state       = "zxvcasdfqw"
 	client      *spotifyWrapper.Client
 	redirectURI = os.Getenv("OAUTH2_REDIRECT_URI")
-	pingChan    = make(chan string)
 )
 
 //Data to pass to templates
@@ -37,6 +37,7 @@ type Data struct {
 	PlaylistID    spotifyWrapper.ID
 	Success       bool
 	Error         string
+	TopTrackAdded bool
 }
 
 func completeAuth(w http.ResponseWriter, r *http.Request) {
@@ -85,16 +86,16 @@ func lastFMHandle(w http.ResponseWriter, r *http.Request) {
 	if client == nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
+		data := Data{}
 		tmpl := template.Must(template.ParseFiles("templates/base.html", "templates/lastfm.html"))
+
 		user, err := client.CurrentUser()
 		if err != nil {
 			log.Fatal(err)
 		}
+		data.User = user
 
 		if r.Method != http.MethodPost {
-			data := Data{
-				User: user,
-			}
 			tmpl.ExecuteTemplate(w, "base", data)
 		} else {
 			LastFMForm := lastfm.Form{
@@ -108,6 +109,7 @@ func lastFMHandle(w http.ResponseWriter, r *http.Request) {
 				logError(&w, err, user.User.DisplayName, tmpl)
 				return
 			}
+			data.LastFMTracks = lastFMTracks
 
 			spotifyTrackIDs, err := spotify.GetTracksBasedOnLastFM(client, lastFMTracks)
 			if err != nil {
@@ -120,22 +122,24 @@ func lastFMHandle(w http.ResponseWriter, r *http.Request) {
 				logError(&w, err, user.User.DisplayName, tmpl)
 				return
 			}
+			data.PlaylistID = playlist.ID
 
-			data := Data{
-				User:         user,
-				LastFMTracks: lastFMTracks,
-				PlaylistID:   playlist.ID,
-				Success:      true,
+			if LastFMForm.Period == "overall" {
+				topTrackID := (*spotifyTrackIDs)[:1]
+				client.AddTracksToPlaylist("3XN89Ie0dEP5cInfxN5S5j", topTrackID...)
+				data.TopTrackAdded = true
 			}
+			data.Success = true
 			tmpl.ExecuteTemplate(w, "base", data)
 		}
 	}
 }
 
 func logError(w *http.ResponseWriter, err error, userDisplayName string, tmpl *template.Template) {
+	data := Data{Error: err.Error()}
+
 	fmt.Println(err)
 	logToDB("errors", userDisplayName, err.Error())
-	data := Data{Error: err.Error()}
 	tmpl.ExecuteTemplate(*w, "base", data)
 }
 
@@ -143,16 +147,16 @@ func spotifyHandle(w http.ResponseWriter, r *http.Request) {
 	if client == nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
+		data := Data{}
 		tmpl := template.Must(template.ParseFiles("templates/base.html", "templates/spotify.html"))
+
 		user, err := client.CurrentUser()
 		if err != nil {
 			log.Fatal(err)
 		}
+		data.User = user
 
 		if r.Method != http.MethodPost {
-			data := Data{
-				User: user,
-			}
 			tmpl.ExecuteTemplate(w, "base", data)
 		} else {
 
@@ -178,12 +182,14 @@ func spotifyHandle(w http.ResponseWriter, r *http.Request) {
 				logError(&w, err, user.User.DisplayName, tmpl)
 				return
 			}
+			data.PlaylistID = playlist.ID
 
-			data := Data{
-				User:       user,
-				PlaylistID: playlist.ID,
-				Success:    true,
+			if SpotifyForm.TimeRange == "long" {
+				topTrackID := (*spotifyTrackIDs)[:1]
+				client.AddTracksToPlaylist("3XN89Ie0dEP5cInfxN5S5j", topTrackID...)
+				data.TopTrackAdded = true
 			}
+			data.Success = true
 			tmpl.ExecuteTemplate(w, "base", data)
 		}
 	}
@@ -210,21 +216,19 @@ func logToDB(logType, user, errorDesc string) {
 		return
 	}
 
+	defer database.Close()
+
 	if logType == "users" {
 		_, err = database.Query(fmt.Sprintf("INSERT INTO %s (username) VALUES ('%s');", logType, user))
 		if err != nil {
-			fmt.Printf(fmt.Sprintf("INSERT INTO %s (username) VALUES ('%s');", logType, user))
 			fmt.Printf("[x] Error on insert. Reason: %s\n", err.Error())
 		}
 	} else {
 		_, err = database.Query(fmt.Sprintf("INSERT INTO %s (username, error_desc) VALUES ('%s', '%s');", logType, user, errorDesc))
 		if err != nil {
-			fmt.Printf(fmt.Sprintf("INSERT INTO %s (username, error_desc) VALUES ('%s', '%s');", logType, user, errorDesc))
 			fmt.Printf("[x] Error on insert. Reason: %s\n", err.Error())
 		}
 	}
-
-	defer database.Close()
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
@@ -249,9 +253,9 @@ func createTables() {
 		if err != nil {
 			fmt.Printf("[x] Error on creating users table. Reason: %s\n", err.Error())
 		}
-		_, err = database.Query("CREATE TABLE IF NOT EXISTS ERRORS (id SERIAL, username varchar(255),error_desc varchar(255), errored_at TIMESTAMPTZ NOT NULL DEFAULT NOW());")
+		_, err = database.Query("CREATE TABLE IF NOT EXISTS ERRORS (id SERIAL, username varchar(255), error_desc varchar(255), errored_at TIMESTAMPTZ NOT NULL DEFAULT NOW());")
 		if err != nil {
-			fmt.Printf("[x] Error on creating users table. Reason: %s\n", err.Error())
+			fmt.Printf("[x] Error on creating errors table. Reason: %s\n", err.Error())
 		}
 
 		defer database.Close()
