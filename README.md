@@ -8,7 +8,7 @@ Charro can generate your private Spotify playlist based on your most listened tr
 
 This was made purely for Go learning purposes and out of curiousity, but some might find this tool useful for generating Spotify playlists (me). There are plenty of things to improve and this is not end product by any means (I doubt it will ever be). Code reviews and/or suggestions are welcome.
 
-I've included logging connected users to database just to check how many users will try this.
+I've included logging users to database just to check how many will try this. Errors too.
 
 Made with Go, Postgres, Bootstrap. Hosted on Heroku, custom domain is proxied through Cloudflare to enforce SSL as Heroku won't allow certificates with free dynos.
 
