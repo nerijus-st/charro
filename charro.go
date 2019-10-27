@@ -57,7 +57,9 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	logToDB("users", user.User.DisplayName, "")
+	createCookie(w, r)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 
@@ -65,8 +67,9 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 
 func mainHandle(w http.ResponseWriter, r *http.Request) {
 	log.Println("Got request for:", r.URL.String())
+	_, err := r.Cookie("superDuperCookie")
 
-	if client == nil {
+	if client == nil || err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
 		tmpl := template.Must(template.ParseFiles("templates/base.html", "templates/main.html"))
@@ -83,7 +86,9 @@ func mainHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func lastFMHandle(w http.ResponseWriter, r *http.Request) {
-	if client == nil {
+	_, err := r.Cookie("superDuperCookie")
+
+	if client == nil || err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
 		data := Data{}
@@ -144,7 +149,9 @@ func logError(w *http.ResponseWriter, err error, userDisplayName string, tmpl *t
 }
 
 func spotifyHandle(w http.ResponseWriter, r *http.Request) {
-	if client == nil {
+	_, err := r.Cookie("superDuperCookie")
+
+	if client == nil || err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
 		data := Data{}
@@ -196,7 +203,9 @@ func spotifyHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginHandle(w http.ResponseWriter, r *http.Request) {
-	if client == nil {
+	_, err := r.Cookie("superDuperCookie")
+
+	if client == nil || err != nil {
 		tmpl := template.Must(template.ParseFiles("templates/base.html", "templates/login.html"))
 		loginURL := auth.AuthURL(state)
 		data := Data{
@@ -260,6 +269,15 @@ func createTables() {
 
 		defer database.Close()
 	}
+}
+
+func createCookie(w http.ResponseWriter, r *http.Request) {
+	c := http.Cookie{
+		Name:   "superDuperCookie",
+		Value:  "created",
+		MaxAge: 7200,
+	}
+	http.SetCookie(w, &c)
 }
 
 func main() {
